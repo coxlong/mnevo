@@ -1,0 +1,106 @@
+package web
+
+import (
+	"fmt"
+	"github.com/coxlong/mnevo/internal/domain"
+)
+
+templ modelsPage(p pageData) {
+	if p.ModelConfig != nil {
+		<div class="space-y-6">
+			<div class="grid gap-4 sm:grid-cols-3">
+				@modelStat("memory", "记忆召回", readyLabel(p.ModelConfig.RecallReady, "Embedding + Jev 已连接", "配置模型后开始召回"), p.ModelConfig.RecallReady)
+				@modelStat("spark", "自动抽取与导入", readyLabel(p.ModelConfig.AutoExtractReady, "提炼服务已就绪", "需要 Jev 与通用 LLM"), p.ModelConfig.AutoExtractReady)
+				<div class="panel flex items-center gap-4 p-5"><span class="grid size-11 shrink-0 place-items-center rounded-2xl bg-sky-50 text-sky-600">@icon("database", "size-5")</span><div><span class="text-xs text-slate-400">向量索引进度</span><div class="mt-1 flex items-baseline gap-1.5"><strong class="text-xl font-semibold tracking-tight text-slate-800">{ fmt.Sprint(p.ModelConfig.EmbeddedMemories) }</strong><span class="text-xs text-slate-400">/ { fmt.Sprint(p.ModelConfig.TotalMemories) } 条</span></div></div></div>
+			</div>
+			<div class="grid items-start gap-5 md:grid-cols-2 2xl:grid-cols-3">
+				@modelCard(p, "embedding", "Embedding", "语义向量", p.ModelConfig.Embedding)
+				@modelCard(p, "jev", "System One / Jev", "快速情境裁决", p.ModelConfig.Jev)
+				@modelCard(p, "llm", "通用 LLM", "提炼与根因诊断", p.ModelConfig.LLM)
+			</div>
+			<section class="panel overflow-hidden">
+				<div class="flex flex-col gap-4 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+					<div class="flex items-center gap-3"><span class="grid size-10 place-items-center rounded-xl bg-slate-100 text-slate-600">@icon("external", "size-[18px]")</span><div><h2 class="text-sm font-semibold text-slate-800">Web 管理页外部入口</h2><p class="mt-1 text-xs text-slate-400">支持反向代理域名和子路径，保存后热生效</p></div></div>
+					@readyBadge(p.ModelConfig.Web.PublicURL != "", "已配置外部入口", "仅本机访问")
+				</div>
+				<form method="post" action={ p.Action } hx-post={ p.Action } hx-target="#page-content" hx-disabled-elt="button" class="p-5 sm:p-6">
+					@operationFields(p, "web")<input type="hidden" name="action" value="set"/>
+					<label class="field-label">Public URL
+						<div class="mt-2 flex flex-col gap-3 sm:flex-row"><input class="field mt-0 font-mono text-xs" name="public_url" value={ p.ModelConfig.Web.PublicURL } placeholder="https://example.com/mnevo"/><button class="btn-primary sm:min-w-28">@spinner() 保存入口</button></div>
+					</label>
+					<p class="mt-3 text-xs leading-5 text-slate-400">留空时仅允许 127.0.0.1、localhost 与 [::1]。公网部署请同时使用 HTTPS。</p>
+				</form>
+			</section>
+		</div>
+	}
+}
+
+templ modelStat(iconName string, label string, description string, ready bool) {
+	<div class="panel flex items-center gap-4 p-5">
+		<span class={ modelStatIconClass(ready) }>@icon(iconName, "size-5")</span>
+		<div class="min-w-0"><div class="flex items-center gap-2"><span class="text-xs text-slate-400">{ label }</span><span class={ "size-1.5 rounded-full " + modelDotClass(ready) }></span></div><strong class="mt-1 block truncate text-sm font-semibold text-slate-700">{ description }</strong></div>
+	</div>
+}
+
+func modelStatIconClass(ready bool) string {
+	if ready { return "grid size-11 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600" }
+	return "grid size-11 shrink-0 place-items-center rounded-2xl bg-amber-50 text-amber-600"
+}
+
+func modelDotClass(ready bool) string {
+	if ready { return "bg-emerald-500" }
+	return "bg-amber-500"
+}
+
+func readyLabel(ready bool, readyText string, fallback string) string {
+	if ready { return readyText }
+	return fallback
+}
+
+templ modelCard(p pageData, role string, title string, subtitle string, endpoint domain.ModelEndpointView) {
+	<section class="panel overflow-hidden">
+		<div class="flex items-center gap-3 border-b border-slate-100 px-5 py-5 sm:px-6">
+			<span class="grid size-10 place-items-center rounded-xl bg-violet-50 text-brand">@icon(modelIcon(role), "size-[18px]")</span>
+			<div class="min-w-0 flex-1"><h2 class="text-sm font-semibold text-slate-800">{ title }</h2><p class="mt-0.5 text-[11px] text-slate-400">{ subtitle }</p></div>
+			@readyBadge(endpoint.Enabled, "已启用", "未启用")
+		</div>
+		<form method="post" action={ p.Action } hx-post={ p.Action } hx-target="#page-content" hx-disabled-elt="button" class="space-y-4 p-5 sm:p-6">
+			@operationFields(p, "model")<input type="hidden" name="target" value={ role }/>
+			<label class="flex cursor-pointer items-center justify-between rounded-xl bg-slate-50 px-3.5 py-3 text-xs font-medium text-slate-600"><span>启用此模型服务</span><input type="checkbox" name="enabled" checked?={ endpoint.Enabled } class="size-4 accent-brand"/></label>
+			<label class="field-label">{ modelURLLabel(role) }<input class="field font-mono text-xs" name="url" value={ endpoint.URL } placeholder={ modelURLPlaceholder(role) }/></label>
+			<label class="field-label">模型 ID<input class="field font-mono text-xs" name="model" value={ endpoint.Model } placeholder={ modelPlaceholder(role) }/></label>
+			<label class="field-label">API Key
+				<input class="field" name="api_key" type="password" autocomplete="off" placeholder={ keyPlaceholder(endpoint.HasKey) }/>
+				if endpoint.HasKey {
+					<span class="mt-2 block text-[11px] font-normal text-slate-400">当前密钥 <code class="font-mono text-slate-500">{ endpoint.KeyMasked }</code>。地址相同时可保留。更换地址时请填写密钥或勾选清除。</span>
+				} else {
+					<span class="mt-2 block text-[11px] font-normal text-slate-400">尚未配置，本地服务可留空</span>
+				}
+			</label>
+			<label class="flex items-center gap-2 text-xs font-normal text-slate-500"><input type="checkbox" name="clear_key" class="size-4 accent-brand"/>清除已保存的密钥</label>
+			<div class="flex gap-2 border-t border-slate-100 pt-4"><button class="btn-primary flex-1" name="action" value="set">@spinner() 保存配置</button><button class="btn-secondary" name="action" value="test">@spinner() 测试连接</button></div>
+		</form>
+	</section>
+}
+
+func modelIcon(role string) string {
+	switch role { case "embedding": return "database"; case "jev": return "spark"; default: return "models" }
+}
+
+func modelURLLabel(role string) string {
+	if role == "jev" { return "System One Endpoint URL" }
+	return "API Base URL"
+}
+
+func modelURLPlaceholder(role string) string {
+	switch role { case "embedding": return "http://127.0.0.1:11434/v1"; case "jev": return "https://openrouter.ai/api/v1/systemone"; default: return "https://openrouter.ai/api/v1" }
+}
+
+func modelPlaceholder(role string) string {
+	switch role { case "embedding": return "nomic-embed-text"; case "jev": return "typesafe/jev-1.14"; default: return "openai/gpt-4o-mini" }
+}
+
+func keyPlaceholder(hasKey bool) string {
+	if hasKey { return "地址相同时可留空" }
+	return "输入 API Key"
+}

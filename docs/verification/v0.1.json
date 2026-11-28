@@ -1,0 +1,258 @@
+{
+  "date": "2026-11-27",
+  "environment": {
+    "os": "Linux amd64",
+    "go": "1.27.3",
+    "claude_code": "2.1.332"
+  },
+  "go": {
+    "CGO_ENABLED=0 go build -p 2": "pass",
+    "CGO_ENABLED=0 go test -p 2 ./...": "pass",
+    "go test -race -p 2 ./...": "pass",
+    "go vet -p 2 ./...": "pass"
+  },
+  "loopback_claude": {
+    "formation_and_recall": [
+      {
+        "scope": "research",
+        "confirmed_hook": true,
+        "status": "ok",
+        "strategy": "settings-v1",
+        "version": 1,
+        "type": "fact",
+        "summary": "抽样口径按注册日期分层",
+        "conditions": "报告抽样方法",
+        "provenance": "formation"
+      },
+      {
+        "scope": "personal",
+        "confirmed_hook": true,
+        "status": "ok",
+        "strategy": "settings-v1",
+        "version": 1,
+        "type": "preference",
+        "summary": "周记先写一句结论",
+        "conditions": "个人周记",
+        "provenance": "formation"
+      },
+      {
+        "scope": "project",
+        "confirmed_hook": true,
+        "status": "ok",
+        "strategy": "settings-v1",
+        "version": 1,
+        "type": "procedure",
+        "summary": "使用离线索引核对日志清单",
+        "conditions": "索引错误复现",
+        "provenance": "formation"
+      }
+    ],
+    "resume_tool_results": [
+      "unavailable",
+      "ok"
+    ],
+    "service_offline_tool_results": [
+      "ok",
+      "unavailable"
+    ],
+    "slow_service_decision": "timeout"
+  },
+  "loopback_service_models": [
+    {
+      "operation": "recall",
+      "strategy": "settings-v1",
+      "result": "delivered",
+      "version": 2,
+      "model_outcome": "system_one_keep",
+      "model_ms": 1
+    },
+    {
+      "operation": "recall",
+      "strategy": "settings-v1",
+      "result": "delivered",
+      "version": 2,
+      "model_outcome": "system_one_timeout",
+      "model_ms": 201
+    },
+    {
+      "operation": "verify_feedback",
+      "strategy": "settings-v1",
+      "result": "applied",
+      "version": 2,
+      "model_outcome": "llm_confirmed",
+      "model_ms": 9
+    }
+  ],
+  "strategy": {
+    "proposal": {
+      "kind": "false_injection",
+      "category": "policy",
+      "setting": "recall.minimum",
+      "base": 2,
+      "before": 0.25,
+      "after": 0.45,
+      "status": "approved",
+      "actor": "local-admin",
+      "published": 3,
+      "evidence_count": 3
+    },
+    "runtime": {
+      "pending": {
+        "strategy": "settings-v2",
+        "result": "delivered",
+        "match_context": "score=0.333 exact=false"
+      },
+      "approved": {
+        "strategy": "settings-v3",
+        "result": "no_match"
+      },
+      "rolled_back": {
+        "strategy": "settings-v4",
+        "result": "delivered",
+        "match_context": "score=0.333 exact=false"
+      }
+    }
+  },
+  "interactive_claude": [
+    {
+      "operation": "recall",
+      "result": "delivered",
+      "strategy": "settings-v1"
+    },
+    {
+      "operation": "get_memory",
+      "result": "ok",
+      "strategy": "settings-v1"
+    },
+    {
+      "operation": "recall",
+      "result": "no_match",
+      "strategy": "settings-v1"
+    },
+    {
+      "operation": "Stop",
+      "result": "ended",
+      "strategy": "settings-v1"
+    },
+    {
+      "operation": "recall",
+      "result": "no_match",
+      "strategy": "settings-v1"
+    },
+    {
+      "operation": "get_memory",
+      "result": "unavailable",
+      "strategy": "settings-v1"
+    },
+    {
+      "operation": "recall",
+      "result": "no_match",
+      "strategy": "settings-v1"
+    },
+    {
+      "operation": "submit_memory_feedback",
+      "result": "unavailable",
+      "strategy": "settings-v1"
+    },
+    {
+      "operation": "recall",
+      "result": "no_match",
+      "strategy": "settings-v1"
+    },
+    {
+      "operation": "Stop",
+      "result": "ended",
+      "strategy": "settings-v1"
+    }
+  ],
+  "authenticated_remote_claude": {
+    "turn_timings": [
+      {
+        "case": "learn-research",
+        "elapsed_ms": 17453,
+        "exit": 0,
+        "result_kind": "success",
+        "tools": []
+      },
+      {
+        "case": "read-research",
+        "elapsed_ms": 5494,
+        "exit": 0,
+        "result_kind": "success",
+        "tools": [
+          "ok"
+        ]
+      },
+      {
+        "case": "resume-research",
+        "elapsed_ms": 6288,
+        "exit": 0,
+        "result_kind": "success",
+        "tools": [
+          "ok"
+        ]
+      },
+      {
+        "case": "learn-personal",
+        "elapsed_ms": 16504,
+        "exit": 0,
+        "result_kind": "success",
+        "tools": [
+          "unavailable"
+        ]
+      },
+      {
+        "case": "read-personal",
+        "elapsed_ms": 4428,
+        "exit": 0,
+        "result_kind": "success",
+        "tools": [
+          "ok"
+        ]
+      },
+      {
+        "case": "learn-project",
+        "elapsed_ms": 19830,
+        "exit": 0,
+        "result_kind": "success",
+        "tools": []
+      },
+      {
+        "case": "read-project",
+        "elapsed_ms": 4884,
+        "exit": 0,
+        "result_kind": "success",
+        "tools": [
+          "ok"
+        ]
+      }
+    ],
+    "recall_and_read": {
+      "research": {
+        "summary": "抽样字典按注册周分层",
+        "status": "ok",
+        "type": "fact",
+        "strategy": "settings-v1",
+        "version": 1
+      },
+      "personal": {
+        "summary": "周记优先写一句结论",
+        "status": "ok",
+        "type": "preference",
+        "strategy": "settings-v1",
+        "version": 1
+      },
+      "project": {
+        "summary": "先用离线索引核对合成日志",
+        "status": "ok",
+        "type": "procedure",
+        "strategy": "settings-v1",
+        "version": 1
+      }
+    }
+  },
+  "hosted_jev_and_llm": {
+    "status": "untested",
+    "reason": "no configured service provider credentials"
+  }
+}

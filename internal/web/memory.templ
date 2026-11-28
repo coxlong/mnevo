@@ -1,0 +1,217 @@
+package web
+
+import (
+	"fmt"
+	"github.com/coxlong/mnevo/internal/domain"
+)
+
+templ memoryPage(p pageData) {
+	<div class="space-y-5">
+		if p.ID == "" {
+			<div class="flex flex-col gap-3 xl:flex-row xl:items-start">
+				<form method="get" action={ p.Base } hx-get={ p.Base } hx-target="#page-content" hx-push-url="true" hx-indicator="#search-loading" class="panel flex min-w-0 flex-1 items-center gap-2 p-2" role="search">
+					<input type="hidden" name="view" value="memory"/>
+					<span class="pl-2 text-slate-400">@icon("search", "size-[18px]")</span>
+					<label class="min-w-0 flex-1"><span class="sr-only">搜索记忆</span><input type="search" name="q" value={ p.Query } placeholder="搜索摘要、标签、条件或 ID…" class="min-h-10 w-full border-0 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"/></label>
+					if p.Query != "" {
+						<a href="?view=memory" class="rounded-lg px-2 py-2 text-xs font-medium text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">清除</a>
+					}
+					<span id="search-loading" class="htmx-indicator size-4 animate-spin rounded-full border-2 border-brand border-r-transparent"></span>
+					<button class="btn-primary min-h-10">搜索</button>
+				</form>
+			</div>
+			<details class="memory-create-panel group panel overflow-hidden">
+				<summary class="flex cursor-pointer items-center justify-between px-5 py-4 text-sm font-semibold text-slate-700"><span class="flex items-center gap-2">@icon("plus", "size-4 text-brand transition group-open:rotate-45") 新增与导入</span>@icon("chevron", "size-4 text-slate-400 transition group-open:rotate-180")</summary>
+				@memoryTools(p)
+			</details>
+		}
+		if p.ID == "" {
+			@memoryStats(p)
+		}
+		<div class={ memoryBrowserClass(p) }>
+			<section class="min-w-0" aria-labelledby="memory-list-heading">
+				<div class="mb-3 flex items-center justify-between px-1">
+					<div class="flex items-center gap-2.5"><h2 id="memory-list-heading" class="text-sm font-semibold text-slate-700">{ memoryListTitle(p) }</h2><span class="rounded-full bg-slate-200/60 px-2 py-0.5 font-mono text-[10px] font-medium text-slate-500">{ fmt.Sprint(len(p.Result.Memories)) }</span></div>
+					if p.ID == "" {
+						<span class="hidden text-[11px] text-slate-400 sm:block">按最近强化时间排序</span>
+					}
+				</div>
+				<div class="panel overflow-hidden">
+					for i, memory := range p.Result.Memories {
+						@memoryCard(p, memory, i)
+					}
+					if len(p.Result.Memories) == 0 {
+						if p.Query != "" || p.ID != "" {
+							@emptyState("没有匹配的记忆", "试试其他关键词，或返回记忆库查看全部内容。")
+						} else {
+							@emptyState("从第一条长期记忆开始", "导入一份文档、手动新增，或在 Claude Code 中输入「记住：…」。")
+						}
+					}
+				</div>
+			</section>
+			if p.Preview != nil {
+				@memoryPreview(p, *p.Preview)
+			}
+		</div>
+	</div>
+}
+
+templ memoryStats(p pageData) {
+	if p.ModelConfig != nil {
+		<div class="grid grid-cols-3 overflow-hidden rounded-2xl border border-slate-200/70 bg-white/70 shadow-xs">
+			<div class="px-4 py-3.5 sm:px-5"><span class="block text-[10px] uppercase tracking-wider text-slate-400">当前结果</span><strong class="mt-1 block text-sm font-semibold text-slate-700">{ fmt.Sprint(len(p.Result.Memories)) } <span class="text-xs font-normal text-slate-400">条记忆</span></strong></div>
+			<div class="border-x border-slate-100 px-4 py-3.5 sm:px-5"><span class="block text-[10px] uppercase tracking-wider text-slate-400">向量索引</span><strong class="mt-1 block text-sm font-semibold text-slate-700">{ fmt.Sprint(p.ModelConfig.EmbeddedMemories) } <span class="text-xs font-normal text-slate-400">/ { fmt.Sprint(p.ModelConfig.TotalMemories) }</span></strong></div>
+			<div class="px-4 py-3.5 sm:px-5"><span class="block text-[10px] uppercase tracking-wider text-slate-400">召回状态</span><div class="mt-1.5">@readyBadge(p.ModelConfig.RecallReady, "已就绪", "未就绪")</div></div>
+		</div>
+	}
+}
+
+templ memoryTools(p pageData) {
+	<div class="grid gap-px border-t border-slate-100 bg-slate-100 lg:grid-cols-3">
+		<section class="bg-white p-5 sm:p-6">
+			<div class="mb-5 flex items-center gap-3"><span class="grid size-9 place-items-center rounded-xl bg-violet-50 text-brand">@icon("spark", "size-4")</span><div><h3 class="text-sm font-semibold text-slate-800">智能导入</h3><p class="mt-0.5 text-[11px] text-slate-400">从文档提炼长期记忆</p></div></div>
+			<form method="post" action={ p.Action } hx-post={ p.Action } hx-target="#page-content" hx-disabled-elt="button" class="space-y-4">
+				@operationFields(p, "memory")<input type="hidden" name="action" value="import"/>
+				<label class="field-label">来源标识<input class="field" name="location" placeholder="例如：团队规范.md" required/></label>
+				<label class="field-label">原文内容<textarea class="field min-h-28 resize-y" name="content" placeholder="粘贴 Markdown、笔记或团队规范…" required></textarea></label>
+				<div class="flex items-center justify-between gap-3"><span class="text-[10px] leading-4 text-slate-400">Jev 过滤 → LLM 提炼<br/>Embedding 向量化</span><button class="btn-primary">@spinner() @icon("upload", "size-4") 开始导入</button></div>
+			</form>
+		</section>
+		<section class="bg-white p-5 sm:p-6">
+			<div class="mb-5 flex items-center gap-3"><span class="grid size-9 place-items-center rounded-xl bg-sky-50 text-sky-600">@icon("plus", "size-4")</span><div><h3 class="text-sm font-semibold text-slate-800">手动新增</h3><p class="mt-0.5 text-[11px] text-slate-400">精确记录一条知识</p></div></div>
+			<form method="post" action={ p.Action } hx-post={ p.Action } hx-target="#page-content" hx-disabled-elt="button" class="space-y-4">
+				@operationFields(p, "memory")<input type="hidden" name="action" value="add"/>
+				<div class="grid grid-cols-2 gap-3"><label class="field-label">类型@kindSelect("kind", "")</label><label class="field-label">标签<input class="field" name="tags" placeholder="go, 规范"/></label></div>
+				<label class="field-label">摘要<input class="field" name="summary" placeholder="一句话说明这条记忆" required/></label>
+				<label class="field-label">适用条件<input class="field" name="conditions" placeholder="何时应该召回" required/></label>
+				<label class="field-label">补充细节<textarea class="field min-h-20 resize-y" name="details" placeholder="可选"></textarea></label>
+				<div class="flex justify-end"><button class="btn-primary">@spinner() 新增记忆</button></div>
+			</form>
+		</section>
+		<section class="bg-white p-5 sm:p-6">
+			<div class="mb-5 flex items-center gap-3"><span class="grid size-9 place-items-center rounded-xl bg-amber-50 text-amber-600">@icon("edit", "size-4")</span><div><h3 class="text-sm font-semibold text-slate-800">修订记忆</h3><p class="mt-0.5 text-[11px] text-slate-400">发布不可变的新版本</p></div></div>
+			<form method="post" action={ p.Action } hx-post={ p.Action } hx-target="#page-content" hx-disabled-elt="button" class="space-y-4">
+				@operationFields(p, "memory")<input type="hidden" name="action" value="correct"/>
+				<label class="field-label">记忆 ID<input class="field font-mono text-xs" name="target" value={ p.ID } placeholder="输入记忆 ID" required/></label>
+				<label class="field-label">新版本 JSON<textarea class="field min-h-[218px] resize-y font-mono text-xs leading-5" name="payload" placeholder='{"type":"fact","summary":"更新后的摘要","tags":["标签"],"conditions":"适用条件","details":"可选细节"}' required></textarea></label>
+				<div class="flex justify-end"><button class="btn-primary">@spinner() 发布新版本</button></div>
+			</form>
+		</section>
+	</div>
+}
+
+templ kindSelect(name string, selected string) {
+	<select class="field" name={ name }>
+		<option value="fact" selected?={ selected == "fact" }>事实</option>
+		<option value="guideline" selected?={ selected == "guideline" }>准则</option>
+		<option value="procedure" selected?={ selected == "procedure" }>方法</option>
+		<option value="preference" selected?={ selected == "preference" }>偏好</option>
+		<option value="episode" selected?={ selected == "episode" }>经历</option>
+	</select>
+}
+
+templ memoryCard(p pageData, memory domain.MemoryRecord, index int) {
+	<article class={ memoryCardClass(p.Selection == memory.ID && p.ID == "") }>
+		if p.ID != "" {
+			<div class="flex flex-wrap items-center gap-2">@kindBadge(memory.Kind)<span class="chip bg-slate-100 font-mono text-slate-500">v{ fmt.Sprint(memory.Version) }</span>@memoryState(memory)</div>
+			<h3 class="mt-3 whitespace-pre-wrap text-[15px] font-semibold leading-6 text-slate-800">{ memory.Summary }</h3>
+		} else {
+			<div class="flex items-center gap-2">@kindBadge(memory.Kind)<span class="ml-auto font-mono text-[10px] text-slate-400">v{ fmt.Sprint(memory.Version) }</span></div>
+			<h3 class="mt-2.5 text-[15px] font-semibold leading-6">
+				<a href={ memorySelectURL(p, memory.ID) } hx-get={ memorySelectURL(p, memory.ID) } hx-target="#page-content" hx-push-url="true" class="hidden whitespace-pre-wrap text-slate-800 transition hover:text-brand md:block">{ memory.Summary }</a>
+				<a href={ memoryDetailURL(p, memory.ID) } class="whitespace-pre-wrap text-slate-800 md:hidden">{ memory.Summary }</a>
+			</h3>
+		}
+		if memory.Conditions != "" {
+			<p class="mt-2 line-clamp-2 text-[13px] leading-5 text-slate-500">{ memory.Conditions }</p>
+		}
+		<div class="mt-3 flex flex-wrap items-center gap-1.5">
+			for _, tag := range memory.Tags {
+				<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] text-slate-500">#{ tag }</span>
+			}
+			@memoryState(memory)
+		</div>
+		if p.ID != "" {
+			<details class="mt-4 border-t border-slate-100 pt-3" open?={ index == 0 }>
+				<summary class="flex cursor-pointer items-center justify-between text-xs font-medium text-slate-500">查看详情与操作@icon("chevron", "size-3.5")</summary>
+				@memoryFacts(memory, true)
+				<form method="post" action={ p.Action } hx-post={ p.Action } hx-target="#page-content" hx-disabled-elt="button" class="mt-4 flex flex-wrap gap-2">
+					@operationFields(p, "memory")<input type="hidden" name="target" value={ memory.ID }/>
+					if memory.Enabled {
+						<button class="btn-secondary" name="action" value="disable">@spinner() 停用</button>
+					} else {
+						<button class="btn-secondary" name="action" value="enable">@spinner() 启用</button>
+					}
+					<button class="btn-secondary" name="action" value="dispute">@spinner() 标记争议</button>
+					<button class="btn-secondary" name="action" value="invalidate">@spinner() 置为失效</button>
+					<button class="btn-danger" name="action" value="delete" hx-confirm="确定删除这条记忆？此操作不可撤销。">@spinner() @icon("trash", "size-3.5") 删除</button>
+				</form>
+			</details>
+		}
+	</article>
+}
+
+templ memoryState(memory domain.MemoryRecord) {
+	if !memory.Enabled {
+		<span class="chip bg-slate-100 text-slate-500">已停用</span>
+	}
+	if memory.State == "disputed" {
+		<span class="chip bg-amber-50 text-amber-700">有争议</span>
+	}
+	if memory.State == "invalid" {
+		<span class="chip bg-rose-50 text-rose-700">已失效</span>
+	}
+}
+
+func memoryCardClass(selected bool) string {
+	if selected { return "relative border-b border-slate-100 bg-violet-50/50 p-5 ring-1 ring-inset ring-brand/15 last:border-0 sm:px-6" }
+	return "relative border-b border-slate-100 bg-white p-5 transition last:border-0 hover:bg-slate-50/70 sm:px-6"
+}
+
+templ memoryPreview(p pageData, memory domain.MemoryRecord) {
+	<aside class="hidden md:block">
+		<div class="panel sticky top-8 overflow-hidden">
+			<div class="border-b border-slate-100 bg-gradient-to-br from-violet-50/70 to-white px-6 pb-6 pt-5">
+				<div class="flex items-center justify-between"><span class="text-[11px] font-semibold uppercase tracking-[0.15em] text-brand">Memory detail</span><span class="rounded-lg border border-violet-100 bg-white px-2 py-1 font-mono text-[10px] text-brand">v{ fmt.Sprint(memory.Version) }</span></div>
+				<h2 class="mt-5 whitespace-pre-wrap text-xl font-semibold leading-8 tracking-[-0.025em] text-slate-800">{ memory.Summary }</h2>
+				<div class="mt-4">@kindBadge(memory.Kind)</div>
+			</div>
+			<div class="space-y-6 p-6">
+				if memory.Conditions != "" {
+					<section><h3 class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">适用条件</h3><p class="whitespace-pre-wrap text-sm leading-6 text-slate-600">{ memory.Conditions }</p></section>
+				}
+				if memory.Details != "" {
+					<section><h3 class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">补充细节</h3><p class="whitespace-pre-wrap text-sm leading-6 text-slate-600">{ memory.Details }</p></section>
+				}
+				@memoryFacts(memory, false)
+				<a href={ memoryDetailURL(p, memory.ID) } class="btn-secondary w-full">查看版本与操作 @icon("arrow", "size-4")</a>
+			</div>
+		</div>
+	</aside>
+}
+
+templ memoryFacts(memory domain.MemoryRecord, full bool) {
+	<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2.5 text-xs leading-5">
+		if full && memory.Details != "" {
+			<dt class="text-slate-400">补充细节</dt><dd class="whitespace-pre-wrap text-slate-600">{ memory.Details }</dd>
+		}
+		<dt class="text-slate-400">向量索引</dt><dd class="text-slate-600">{ embeddedText(memory.Embedded) }</dd>
+		if full {
+			<dt class="text-slate-400">记忆强度</dt><dd class="font-mono text-slate-600">{ fmt.Sprintf("%.2f", memory.Strength) }</dd>
+		}
+		<dt class="text-slate-400">来源</dt><dd class="break-words text-slate-600">{ memory.Origin } · { memory.Location }</dd>
+		if full {
+			<dt class="text-slate-400">记忆 ID</dt><dd class="break-all font-mono text-[11px] text-slate-500">{ memory.ID }</dd>
+		}
+	</dl>
+}
+
+func embeddedText(embedded bool) string {
+	if embedded { return "已建立向量索引" }
+	return "等待向量化"
+}
+
+func memoryBrowserClass(p pageData) string {
+	if p.ID != "" || p.Preview == nil { return "grid" }
+	return "grid items-start gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]"
+}

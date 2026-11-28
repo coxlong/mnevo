@@ -1,0 +1,30 @@
+# Binaries and build outputs
+/mnevo
+/dist/
+*.test
+*.out
+coverage.html
+
+# Local runtime state & SQLite artifacts
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.sock
+service.lock
+admin.key
+
+# Frontend build caches
+.templ-cache/
+
+# Local preview & verification scratch
+/.mnevo-web-preview/
+/.mnevo-web-preview-shots/
+/.preview-tmp/
+/.verify-msg/
+
+# Temporary & OS files
+.DS_Store
+*~
+*.swp
+__pycache__/
+*.pyc

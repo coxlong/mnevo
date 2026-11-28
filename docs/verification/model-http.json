@@ -1,0 +1,53 @@
+{
+  "claude_code_version": "2.1.332",
+  "model_endpoints": "scripted loopback HTTP",
+  "model_events": [
+    {
+      "operation": "recall",
+      "strategy": "research-literal-v1",
+      "trigger_event": "UserPromptSubmit",
+      "result": "delivered",
+      "version": 1,
+      "model_outcome": "system_one_keep"
+    },
+    {
+      "operation": "recall",
+      "strategy": "research-literal-v1",
+      "trigger_event": "UserPromptSubmit",
+      "result": "delivered",
+      "version": 1,
+      "model_outcome": "system_one_keep"
+    },
+    {
+      "operation": "recall",
+      "strategy": "research-literal-v1",
+      "trigger_event": "UserPromptSubmit",
+      "result": "delivered",
+      "version": 1,
+      "model_outcome": "system_one_keep"
+    },
+    {
+      "operation": "recall",
+      "strategy": "research-literal-v1",
+      "trigger_event": "UserPromptSubmit",
+      "result": "delivered",
+      "version": 1,
+      "model_outcome": "system_one_keep"
+    },
+    {
+      "operation": "verify_feedback",
+      "strategy": "research-literal-v1",
+      "result": "applied",
+      "version": 2,
+      "model_outcome": "llm_confirmed"
+    },
+    {
+      "operation": "recall",
+      "strategy": "research-literal-v1",
+      "trigger_event": "PostToolBatch",
+      "result": "delivered",
+      "version": 2,
+      "model_outcome": "system_one_keep"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+digraph Mnevo {
+    graph [
+        charset="UTF-8", bgcolor="#f5f8f5", pad=0.30, nodesep=0.38, ranksep=0.45,
+        fontname="Noto Sans SC", fontsize=24, fontcolor="#17342e",
+        labelloc=t, labeljust=l, label="Mnevo 运行架构"
+    ];
+    node [
+        shape=box, style="rounded,filled", fillcolor=white, color="#abbeb6",
+        fontname="Noto Sans SC", fontsize=13, fontcolor="#17342e",
+        margin="0.21,0.13", width=2.75
+    ];
+    edge [
+        color="#49685f", penwidth=1.25, arrowsize=0.65,
+        fontname="Noto Sans SC", fontsize=11, fontcolor="#465b55"
+    ];
+
+    claude [label="原生 Claude Code\n用户输入触发 Hook · MCP 回查和反馈", group=agent];
+    transcript [label="Claude Code transcript\n上一轮助手回答 · 对话增量", shape=note, fillcolor="#edf4fb", color="#8aacc4"];
+    cli [label="本机 CLI\nsetup · status · stop · 导入与管理"];
+    web [label="浏览器管理页\n记忆与导入 · 模型配置 · 策略 · 诊断 · 审计"];
+    {rank=same; transcript; claude; cli; web;}
+
+    ipc [label="Unix Socket · HTTP/1.1 Keep-Alive\n~/.mnevo/mnevo.sock (0600 · /v1/* · SO_PEERCRED)", fillcolor="#e5f0e9", group=agent];
+    http [label="回环 TCP · HTTP/1.1\n浏览器管理页 · 登录会话与 CSRF", fillcolor="#e5f0e9"];
+    {rank=same; ipc; http;}
+    claude -> ipc [label="按需自动拉起"];
+    claude -> transcript [label="写入", constraint=false];
+    cli -> ipc;
+    web -> http;
+
+    subgraph cluster_service {
+        label="Mnevo Daemon · 单一 HTTP 服务";
+        labelloc=b;
+        labeljust=l;
+        fontsize=17;
+        style="rounded,filled";
+        color="#9eb8aa";
+        fillcolor="#e8f2eb";
+        margin=16;
+
+        recall [label="轮次与同步召回\n续问判断 · 可选查询改写\n向量 Top-K · Jev 筛选 · 自动注入", group=agent];
+        worker [label="后台任务\n对话抽取 · 向量补齐\n反馈核验 · 策略诊断"];
+        admin [label="统一 REST & Web 后端\n热更新 config.json & strategy.json"];
+        {rank=same; recall; worker; admin;}
+
+        db [label="memory.sqlite (WAL)\n记忆与版本 · 向量 BLOB · sessions/deliveries · 队列 · 审计", fillcolor="#d2e7da"];
+        files [label="~/.mnevo/ 文件配置\nconfig.json (密钥) · strategy.json + history/", fillcolor="#dcebe2"];
+        {rank=same; db; files;}
+
+        recall -> db [dir=both];
+        worker -> db [dir=both];
+        admin -> db [dir=both];
+        admin -> files [dir=both];
+    }
+
+    ipc -> recall;
+    ipc -> admin;
+    http -> admin;
+    transcript -> recall [label="按需读取上一轮回答", style=dashed, color="#426c92"];
+
+    models [
+        shape=plain,
+        label=<
+            <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#abbeb6">
+                <TR>
+                    <TD BGCOLOR="#f0f9f6"><B>Embedding</B><BR/>查询与记忆向量化</TD>
+                    <TD BGCOLOR="#fff9ee"><B>Jev</B><BR/>检索与候选判断</TD>
+                    <TD BGCOLOR="#fff4ee"><B>聊天模型</B><BR/>查询改写 · 提炼 · 修订 · 诊断</TD>
+                </TR>
+            </TABLE>
+        >
+    ];
+    db -> models [style=invis, weight=3];
+    recall -> models [label="同步调用", style=dashed, color="#72578a"];
+    worker -> models [label="后台调用", style=dashed, color="#72578a"];
+}

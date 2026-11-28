@@ -1,0 +1,177 @@
+package web
+
+type navItem struct {
+	View  string
+	Label string
+	Icon  string
+}
+
+var navItems = []navItem{
+	{View: "memory", Label: "记忆库", Icon: "memory"},
+	{View: "models", Label: "模型配置", Icon: "models"},
+	{View: "strategy", Label: "策略与提案", Icon: "strategy"},
+	{View: "evidence", Label: "诊断证据", Icon: "evidence"},
+	{View: "audit", Label: "审计记录", Icon: "audit"},
+}
+
+templ pageTemplate(p pageData) {
+	<!doctype html>
+	<html lang="zh-CN" class="h-full antialiased">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<meta name="theme-color" content="#111224"/>
+			<title>{ viewTitle(p.View) } · Mnevo 忆循</title>
+			<link rel="stylesheet" href={ p.Base + "assets/app.css" }/>
+			<script defer src={ p.Base + "assets/htmx.min.js" }></script>
+		</head>
+		<body class="min-h-full">
+			<a href="#main" class="fixed left-4 top-4 z-[100] -translate-y-24 rounded-xl bg-white px-4 py-2 text-sm font-medium text-brand shadow-lift transition focus:translate-y-0">跳到主要内容</a>
+			@desktopSidebar(p)
+			@mobileHeader(p)
+			<main id="main" tabindex="-1" class="min-h-screen lg:pl-64">
+				@pageContent(p)
+			</main>
+			@mobileNavigation(p)
+		</body>
+	</html>
+}
+
+templ partial(p pageData) {
+	@pageContent(p)
+	@recallState(p, true)
+}
+
+templ pageContent(p pageData) {
+	<div id="page-content" class="mx-auto w-full max-w-[1480px] px-4 pb-28 pt-6 sm:px-7 sm:pt-8 lg:px-10 lg:pb-12 lg:pt-10 xl:px-12">
+		switch p.View {
+			case "models":
+				@pageHeader(p, "模型配置", "连接记忆系统所需的模型服务。配置保存后立即生效，无需重启。")
+				@statusMessage(p.Message)
+				@modelsPage(p)
+			case "strategy":
+				@pageHeader(p, "策略与提案", "管理召回与元学习策略，审阅系统提出的改进，并随时回溯历史版本。")
+				@statusMessage(p.Message)
+				@strategyPage(p)
+			case "evidence":
+				@pageHeader(p, "诊断证据", "汇集召回与修订中的异常线索，用可信证据驱动系统持续改进。")
+				@statusMessage(p.Message)
+				@evidencePage(p)
+			case "audit":
+				@pageHeader(p, "审计记录", "追踪每一次操作、模型决策与策略变更，让系统行为清晰可查。")
+				@statusMessage(p.Message)
+				@auditPage(p)
+			default:
+				if p.ID != "" {
+					@pageHeader(p, "记忆版本记录", p.ID)
+				} else {
+					@pageHeader(p, "记忆库", "沉淀真正有价值的知识，在恰当时刻唤醒，让每一次协作都延续上下文。")
+				}
+				@statusMessage(p.Message)
+				@memoryPage(p)
+		}
+	</div>
+}
+
+templ desktopSidebar(p pageData) {
+	<aside class="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col overflow-y-auto bg-[#111224] px-4 py-6 text-slate-300 lg:flex">
+		<div class="px-3">@logo(true)</div>
+		<div class="mt-10 px-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600">管理工作区</div>
+		<nav aria-label="管理台" class="mt-3 space-y-1.5">
+			for _, item := range navItems {
+				@navigationLink(item, p.View, false)
+			}
+		</nav>
+		<div class="mt-auto pt-8">
+			@recallState(p, false)
+			<div class="mt-3 flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.035] p-3">
+				<span class="grid size-9 shrink-0 place-items-center rounded-xl bg-white/[0.07] text-slate-300">@icon("user", "size-4")</span>
+				<div class="min-w-0 flex-1"><strong class="block text-xs font-medium text-slate-200">本机管理员</strong><span class="mt-0.5 block truncate text-[10px] text-slate-500">mnevo · local</span></div>
+				<form method="post" action={ p.Base + "logout" }>
+					@csrfField(p.CSRF)
+					<button type="submit" title="退出登录" aria-label="退出登录" class="grid size-8 cursor-pointer place-items-center rounded-lg text-slate-500 transition hover:bg-white/[0.07] hover:text-white">@icon("logout", "size-4")</button>
+				</form>
+			</div>
+		</div>
+	</aside>
+}
+
+templ navigationLink(item navItem, current string, mobile bool) {
+	if mobile {
+		<a href={ "?view=" + item.View } aria-current={ navCurrent(item.View, current) } class={ mobileNavClass(item.View == current) }>
+			@icon(item.Icon, "size-[19px]")
+			<span>{ item.Label }</span>
+		</a>
+	} else {
+		<a href={ "?view=" + item.View } aria-current={ navCurrent(item.View, current) } class={ desktopNavClass(item.View == current) }>
+			@icon(item.Icon, "size-[18px]")
+			<span>{ item.Label }</span>
+			if item.View == current {
+				<span class="ml-auto size-1.5 rounded-full bg-violet-400"></span>
+			}
+		</a>
+	}
+}
+
+func navCurrent(view string, current string) string {
+	if view == current { return "page" }
+	return ""
+}
+
+func desktopNavClass(active bool) string {
+	if active { return "flex min-h-11 items-center gap-3 rounded-xl bg-white/[0.08] px-3.5 text-[13px] font-medium text-white shadow-sm ring-1 ring-white/[0.04]" }
+	return "flex min-h-11 items-center gap-3 rounded-xl px-3.5 text-[13px] font-medium text-slate-400 transition hover:bg-white/[0.045] hover:text-slate-100"
+}
+
+func mobileNavClass(active bool) string {
+	if active { return "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[10px] font-medium text-brand" }
+	return "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[10px] font-medium text-slate-400"
+}
+
+templ recallState(p pageData, oob bool) {
+	if p.ModelConfig != nil {
+		if oob {
+			<div id="recall-state" hx-swap-oob="outerHTML">@recallStateContent(p)</div>
+		} else {
+			<div id="recall-state">@recallStateContent(p)</div>
+		}
+	}
+}
+
+templ recallStateContent(p pageData) {
+	<a href="?view=models" class="flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.035] px-4 py-3 transition hover:bg-white/[0.06]">
+		<span class="relative flex size-2">
+			if p.ModelConfig.RecallReady {
+				<span class="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-30"></span>
+				<span class="relative inline-flex size-2 rounded-full bg-emerald-400"></span>
+			} else {
+				<span class="relative inline-flex size-2 rounded-full bg-amber-400"></span>
+			}
+		</span>
+		<div class="min-w-0 flex-1"><span class="block text-xs font-medium text-slate-300">记忆召回</span><span class="mt-0.5 block text-[10px] text-slate-500">{ readyText(p.ModelConfig.RecallReady) }</span></div>
+		@icon("chevron", "size-3.5 -rotate-90 text-slate-600")
+	</a>
+}
+
+func readyText(ready bool) string {
+	if ready { return "服务正常 · 已就绪" }
+	return "尚未就绪 · 暂不注入"
+}
+
+templ mobileHeader(p pageData) {
+	<header class="sticky top-0 z-30 flex h-[68px] items-center justify-between border-b border-slate-200/70 bg-canvas/90 px-4 backdrop-blur-xl lg:hidden">
+		@logo(false)
+		<form method="post" action={ p.Base + "logout" }>
+			@csrfField(p.CSRF)
+			<button type="submit" class="grid size-10 cursor-pointer place-items-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-xs" aria-label="退出登录">@icon("logout", "size-4")</button>
+		</form>
+	</header>
+}
+
+templ mobileNavigation(p pageData) {
+	<nav aria-label="移动管理台" class="fixed inset-x-3 bottom-3 z-40 flex items-center rounded-2xl border border-white/60 bg-white/90 p-1.5 shadow-lift backdrop-blur-xl lg:hidden">
+		for _, item := range navItems {
+			@navigationLink(item, p.View, true)
+		}
+	</nav>
+}

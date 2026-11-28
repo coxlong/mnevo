@@ -1,0 +1,777 @@
+{
+  "claude_code_version": "2.1.332",
+  "identifier_policy": "Ephemeral identifiers were replaced with aliases within each run.",
+  "runs": {
+    "remote_model": {
+      "claude_process_streams": {
+        "correction": [
+          {
+            "injection": {
+              "additionalContext": "Mnevo 研究指标参考（仅适用于对应报告期）\n2025 Q4 研究报告的活跃用户按成功登录的去重注册用户计算。写本期报告前核对指标字典。\n记忆引用 ref-1\n可通过 mnevo 的 get_memory 回查，发现变化可通过 submit_memory_feedback 提交反馈。",
+              "hookEventName": "UserPromptSubmit"
+            }
+          },
+          {
+            "tool": "get_memory",
+            "response": {
+              "status": "ok",
+              "reference": "ref-1",
+              "summary": "2025 Q4 研究报告的活跃用户按成功登录的去重注册用户计算。写本期报告前核对指标字典。",
+              "details": {
+                "scope": "research",
+                "applicable_period": "2025 Q4",
+                "definition": "报告期内至少成功登录一次的去重注册用户。",
+                "evidence": {
+                  "id": "research-metrics-2025q4",
+                  "location": "测试资料 / 2025 Q4 研究报告 / 指标字典第 4 条",
+                  "excerpt": "4. 活跃用户：统计报告期内成功登录至少一次的注册账号，同一账号仅计一次。"
+                }
+              },
+              "version": 1
+            }
+          },
+          {
+            "tool": "submit_memory_feedback",
+            "response": {
+              "status": "accepted",
+              "receipt": "receipt-1"
+            }
+          },
+          {
+            "tool": "submit_memory_feedback",
+            "response": {
+              "status": "accepted",
+              "receipt": "receipt-1"
+            }
+          },
+          {
+            "turn_completed": true
+          }
+        ],
+        "cross": [
+          {
+            "UserPromptSubmit": "no_injection"
+          },
+          {
+            "tool": "get_memory",
+            "response": {
+              "status": "unavailable"
+            }
+          },
+          {
+            "tool": "submit_memory_feedback",
+            "response": {
+              "status": "unavailable"
+            }
+          },
+          {
+            "turn_completed": true
+          }
+        ],
+        "revised": [
+          {
+            "injection": {
+              "additionalContext": "Mnevo 研究指标参考（仅适用于对应报告期）\n2026 Q1 研究报告的活跃用户按完成核心操作的去重注册用户计算。2025 Q4 的登录口径仅供历史参考，两期数据不可直接比较。\n记忆引用 ref-2\n可通过 mnevo 的 get_memory 回查，发现变化可通过 submit_memory_feedback 提交反馈。",
+              "hookEventName": "UserPromptSubmit"
+            }
+          },
+          {
+            "tool": "get_memory",
+            "response": {
+              "status": "ok",
+              "reference": "ref-2",
+              "summary": "2026 Q1 研究报告的活跃用户按完成核心操作的去重注册用户计算。2025 Q4 的登录口径仅供历史参考，两期数据不可直接比较。",
+              "details": {
+                "scope": "research",
+                "applicable_period": "2026 Q1",
+                "definition": "报告期内至少完成一次核心操作的去重注册用户，单独登录不计入。",
+                "evidence": {
+                  "id": "research-metrics-2026q1",
+                  "location": "测试资料 / 2026 Q1 研究报告 / 已核准指标字典第 4 条",
+                  "excerpt": "4. 活跃用户：统计报告期内完成至少一次核心操作的注册账号，同一账号仅计一次。仅登录不计入。"
+                }
+              },
+              "version": 2
+            }
+          },
+          {
+            "turn_completed": true
+          }
+        ],
+        "timeout": [
+          {
+            "UserPromptSubmit": "no_injection"
+          },
+          {
+            "turn_completed": true,
+            "completion_marker": "MNEVO_CONTINUED"
+          }
+        ],
+        "offline": [
+          {
+            "UserPromptSubmit": "no_injection"
+          },
+          {
+            "turn_completed": true,
+            "completion_marker": "MNEVO_CONTINUED"
+          }
+        ]
+      },
+      "service_audit": {
+        "audit": [
+          {
+            "operation": "recall",
+            "strategy": "research-literal-v1",
+            "trigger_event": "UserPromptSubmit",
+            "result": "delivered",
+            "reference": "ref-1",
+            "version": 1,
+            "session": "session-1",
+            "task": "task-1"
+          },
+          {
+            "operation": "recall",
+            "strategy": "research-literal-v1",
+            "trigger_event": "UserPromptSubmit",
+            "result": "no_match",
+            "session": "session-2",
+            "task": "task-2"
+          },
+          {
+            "operation": "get_memory",
+            "strategy": "research-literal-v1",
+            "result": "ok",
+            "reference": "ref-1",
+            "version": 1,
+            "session": "session-1",
+            "task": "task-1"
+          },
+          {
+            "operation": "get_memory",
+            "strategy": "research-literal-v1",
+            "result": "unavailable",
+            "session": "session-2",
+            "task": "task-2"
+          },
+          {
+            "operation": "submit_memory_feedback",
+            "strategy": "research-literal-v1",
+            "result": "accepted",
+            "reference": "ref-1",
+            "version": 1,
+            "session": "session-1",
+            "task": "task-1"
+          },
+          {
+            "operation": "verify_feedback",
+            "strategy": "research-literal-v1",
+            "result": "applied",
+            "reference": "ref-1",
+            "version": 2,
+            "session": "session-1",
+            "task": "task-1"
+          },
+          {
+            "operation": "submit_memory_feedback",
+            "strategy": "research-literal-v1",
+            "result": "unavailable",
+            "session": "session-2",
+            "task": "task-2"
+          },
+          {
+            "operation": "submit_memory_feedback",
+            "strategy": "research-literal-v1",
+            "result": "accepted",
+            "reference": "ref-1",
+            "session": "session-1",
+            "task": "task-1"
+          },
+          {
+            "operation": "Stop",
+            "strategy": "research-literal-v1",
+            "result": "ended",
+            "session": "session-2",
+            "task": "task-2"
+          },
+          {
+            "operation": "Stop",
+            "strategy": "research-literal-v1",
+            "result": "ended",
+            "session": "session-1",
+            "task": "task-1"
+          },
+          {
+            "operation": "recall",
+            "strategy": "research-literal-v1",
+            "trigger_event": "UserPromptSubmit",
+            "result": "delivered",
+            "reference": "ref-2",
+            "version": 2,
+            "session": "session-3",
+            "task": "task-3"
+          },
+          {
+            "operation": "get_memory",
+            "strategy": "research-literal-v1",
+            "result": "ok",
+            "reference": "ref-2",
+            "version": 2,
+            "session": "session-3",
+            "task": "task-3"
+          },
+          {
+            "operation": "Stop",
+            "strategy": "research-literal-v1",
+            "result": "ended",
+            "session": "session-3",
+            "task": "task-3"
+          }
+        ],
+        "timeout-audit": [
+          {
+            "operation": "recall",
+            "strategy": "research-literal-v1",
+            "trigger_event": "UserPromptSubmit",
+            "result": "timeout",
+            "session": "session-1",
+            "task": "task-1"
+          },
+          {
+            "operation": "Stop",
+            "strategy": "research-literal-v1",
+            "result": "ended",
+            "session": "session-1",
+            "task": "task-1"
+          }
+        ]
+      }
+    },
+    "local_scripted_model": {
+      "claude_process_streams": {
+        "first": [
+          {
+            "injection": {
+              "additionalContext": "Mnevo 研究指标参考（仅适用于对应报告期）\n2025 Q4 研究报告的活跃用户按成功登录的去重注册用户计算。写本期报告前核对指标字典。\n记忆引用 ref-1\n可通过 mnevo 的 get_memory 回查，发现变化可通过 submit_memory_feedback 提交反馈。",
+              "hookEventName": "UserPromptSubmit"
+            }
+          },
+          {
+            "tool": "get_memory",
+            "response": {
+              "status": "ok",
+              "reference": "ref-1",
+              "summary": "2025 Q4 研究报告的活跃用户按成功登录的去重注册用户计算。写本期报告前核对指标字典。",
+              "details": {
+                "scope": "research",
+                "applicable_period": "2025 Q4",
+                "definition": "报告期内至少成功登录一次的去重注册用户。",
+                "evidence": {
+                  "id": "research-metrics-2025q4",
+                  "location": "测试资料 / 2025 Q4 研究报告 / 指标字典第 4 条",
+                  "excerpt": "4. 活跃用户：统计报告期内成功登录至少一次的注册账号，同一账号仅计一次。"
+                }
+              },
+              "version": 1
+            }
+          },
+          {
+            "turn_completed": true,
+            "completion_marker": "MNEVO_TEST_DONE"
+          },
+          {
+            "UserPromptSubmit": "no_injection"
+          },
+          {
+            "tool": "get_memory",
+            "response": {
+              "status": "unavailable"
+            }
+          },
+          {
+            "tool": "submit_memory_feedback",
+            "response": {
+              "status": "unavailable"
+            }
+          },
+          {
+            "turn_completed": true,
+            "completion_marker": "MNEVO_TEST_DONE"
+          },
+          {
+            "injection": {
+              "additionalContext": "Mnevo 研究指标参考（仅适用于对应报告期）\n2025 Q4 研究报告的活跃用户按成功登录的去重注册用户计算。写本期报告前核对指标字典。\n记忆引用 ref-2\n可通过 mnevo 的 get_memory 回查，发现变化可通过 submit_memory_feedback 提交反馈。",
+              "hookEventName": "UserPromptSubmit"
+            }
+          },
+          {
+            "tool": "get_memory",
+            "response": {
+              "status": "ok",
+              "reference": "ref-2",
+              "summary": "2025 Q4 研究报告的活跃用户按成功登录的去重注册用户计算。写本期报告前核对指标字典。",
+              "details": {
+                "scope": "research",
+                "applicable_period": "2025 Q4",
+                "missing": [
+                  "definition",
+                  "source_excerpt"
+                ]
+              },
+              "version": 1
+            }
+          },
+          {
+            "tool": "get_memory",
+            "response": {
+              "status": "unavailable"
+            }
+          },
+          {
+            "tool": "submit_memory_feedback",
+            "response": {
+              "status": "unavailable"
+            }
+          },
+          {
+            "turn_completed": true,
+            "completion_marker": "MNEVO_TEST_DONE"
+          },
+          {
+            "injection": {
+              "additionalContext": "Mnevo 研究指标参考（仅适用于对应报告期）\n2025 Q4 研究报告的活跃用户按成功登录的去重注册用户计算。写本期报告前核对指标字典。\n记忆引用 ref-3\n可通过 mnevo 的 get_memory 回查，发现变化可通过 submit_memory_feedback 提交反馈。",
+              "hookEventName": "UserPromptSubmit"
+            }
+          },
+          {
+            "tool": "get_memory",
+            "response": {
+              "status": "ok",
+              "reference": "ref-3",
+              "summary": "2025 Q4 研究报告的活跃用户按成功登录的去重注册用户计算。写本期报告前核对指标字典。",
+              "details": {
+                "scope": "research",
+                "applicable_period": "2025 Q4",
+                "definition": "报告期内至少成功登录一次的去重注册用户。",
+                "evidence": {
+                  "id": "research-metrics-2025q4",
+                  "location": "测试资料 / 2025 Q4 研究报告 / 指标字典第 4 条",
+                  "excerpt": "4. 活跃用户：统计报告期内成功登录至少一次的注册账号，同一账号仅计一次。"
+                }
+              },
+              "version": 1
+            }
+          },
+          {
+            "tool": "submit_memory_feedback",
+            "response": {
+              "status": "accepted",
+              "receipt": "receipt-1"
+            }
+          },
+          {
+            "tool": "submit_memory_feedback",
+            "response": {
+              "status": "accepted",
+              "receipt": "receipt-1"
+            }
+          },
+          {
+            "turn_completed": true,
+            "completion_marker": "MNEVO_TEST_DONE"
+          }
+        ],
+        "second": [
+          {
+            "injection": {
+              "additionalContext": "Mnevo 研究指标参考（仅适用于对应报告期）\n2025 Q4 研究报告的活跃用户按成功登录的去重注册用户计算。写本期报告前核对指标字典。\n记忆引用 ref-4\n可通过 mnevo 的 get_memory 回查，发现变化可通过 submit_memory_feedback 提交反馈。",
+              "hookEventName": "UserPromptSubmit"
+            }
+          },
+          {
+            "tool": "get_memory",
+            "response": {
+              "status": "ok",
+              "reference": "ref-4",
+              "summary": "2025 Q4 研究报告的活跃用户按成功登录的去重注册用户计算。写本期报告前核对指标字典。",
+              "details": {
+                "scope": "research",
+                "applicable_period": "2025 Q4",
+                "definition": "报告期内至少成功登录一次的去重注册用户。",
+                "evidence": {
+                  "id": "research-metrics-2025q4",
+                  "location": "测试资料 / 2025 Q4 研究报告 / 指标字典第 4 条",
+                  "excerpt": "4. 活跃用户：统计报告期内成功登录至少一次的注册账号，同一账号仅计一次。"
+                }
+              },
+              "version": 1
+            }
+          },
+          {
+            "tool": "get_memory",
+            "response": {
+              "status": "unavailable"
+            }
+          },
+          {
+            "tool": "submit_memory_feedback",
+            "response": {
+              "status": "unavailable"
+            }
+          },
+          {
+            "turn_completed": true,
+            "completion_marker": "MNEVO_TEST_DONE"
+          },
+          {
+            "UserPromptSubmit": "no_injection"
+          },
+          {
+            "injection": {
+              "additionalContext": "Mnevo 研究指标参考（仅适用于对应报告期）\n2026 Q1 研究报告的活跃用户按完成核心操作的去重注册用户计算。2025 Q4 的登录口径仅供历史参考，两期数据不可直接比较。\n记忆引用 ref-5\n可通过 mnevo 的 get_memory 回查，发现变化可通过 submit_memory_feedback 提交反馈。",
+              "hookEventName": "PostToolBatch"
+            }
+          },
+          {
+            "tool": "get_memory",
+            "response": {
+              "status": "ok",
+              "reference": "ref-5",
+              "summary": "2026 Q1 研究报告的活跃用户按完成核心操作的去重注册用户计算。2025 Q4 的登录口径仅供历史参考，两期数据不可直接比较。",
+              "details": {
+                "scope": "research",
+                "applicable_period": "2026 Q1",
+                "definition": "报告期内至少完成一次核心操作的去重注册用户，单独登录不计入。",
+                "evidence": {
+                  "id": "research-metrics-2026q1",
+                  "location": "测试资料 / 2026 Q1 研究报告 / 已核准指标字典第 4 条",
+                  "excerpt": "4. 活跃用户：统计报告期内完成至少一次核心操作的注册账号，同一账号仅计一次。仅登录不计入。"
+                }
+              },
+              "version": 2
+            }
+          },
+          {
+            "turn_completed": true,
+            "completion_marker": "MNEVO_TEST_DONE"
+          }
+        ],
+        "timeout": [
+          {
+            "UserPromptSubmit": "no_injection"
+          },
+          {
+            "turn_completed": true,
+            "completion_marker": "MNEVO_TEST_DONE"
+          }
+        ],
+        "offline": [
+          {
+            "injection": {
+              "additionalContext": "Mnevo 研究指标参考（仅适用于对应报告期）\n2025 Q4 研究报告的活跃用户按成功登录的去重注册用户计算。写本期报告前核对指标字典。\n记忆引用 ref-6\n可通过 mnevo 的 get_memory 回查，发现变化可通过 submit_memory_feedback 提交反馈。",
+              "hookEventName": "UserPromptSubmit"
+            }
+          },
+          {
+            "tool": "get_memory",
+            "response": {
+              "status": "ok",
+              "reference": "ref-6",
+              "summary": "2025 Q4 研究报告的活跃用户按成功登录的去重注册用户计算。写本期报告前核对指标字典。",
+              "details": {
+                "scope": "research",
+                "applicable_period": "2025 Q4",
+                "definition": "报告期内至少成功登录一次的去重注册用户。",
+                "evidence": {
+                  "id": "research-metrics-2025q4",
+                  "location": "测试资料 / 2025 Q4 研究报告 / 指标字典第 4 条",
+                  "excerpt": "4. 活跃用户：统计报告期内成功登录至少一次的注册账号，同一账号仅计一次。"
+                }
+              },
+              "version": 1
+            }
+          },
+          {
+            "turn_completed": true,
+            "completion_marker": "MNEVO_TEST_DONE"
+          },
+          {
+            "UserPromptSubmit": "no_injection"
+          },
+          {
+            "tool": "get_memory",
+            "response": {
+              "status": "unavailable"
+            }
+          },
+          {
+            "turn_completed": true,
+            "completion_marker": "MNEVO_TEST_DONE"
+          }
+        ]
+      },
+      "service_audit": {
+        "audit": [
+          {
+            "operation": "recall",
+            "strategy": "research-literal-v1",
+            "trigger_event": "UserPromptSubmit",
+            "result": "delivered",
+            "reference": "ref-1",
+            "version": 1,
+            "session": "session-1",
+            "task": "task-1"
+          },
+          {
+            "operation": "get_memory",
+            "strategy": "research-literal-v1",
+            "result": "ok",
+            "reference": "ref-1",
+            "version": 1,
+            "session": "session-1",
+            "task": "task-1"
+          },
+          {
+            "operation": "recall",
+            "strategy": "research-literal-v1",
+            "trigger_event": "UserPromptSubmit",
+            "result": "delivered",
+            "reference": "ref-4",
+            "version": 1,
+            "session": "session-2",
+            "task": "task-2"
+          },
+          {
+            "operation": "get_memory",
+            "strategy": "research-literal-v1",
+            "result": "ok",
+            "reference": "ref-4",
+            "version": 1,
+            "session": "session-2",
+            "task": "task-2"
+          },
+          {
+            "operation": "get_memory",
+            "strategy": "research-literal-v1",
+            "result": "unavailable",
+            "session": "session-2",
+            "task": "task-2"
+          },
+          {
+            "operation": "submit_memory_feedback",
+            "strategy": "research-literal-v1",
+            "result": "unavailable",
+            "session": "session-2",
+            "task": "task-2"
+          },
+          {
+            "operation": "Stop",
+            "strategy": "research-literal-v1",
+            "result": "ended",
+            "session": "session-2",
+            "task": "task-2"
+          },
+          {
+            "operation": "Stop",
+            "strategy": "research-literal-v1",
+            "result": "ended",
+            "session": "session-1",
+            "task": "task-1"
+          },
+          {
+            "operation": "recall",
+            "strategy": "research-literal-v1",
+            "trigger_event": "UserPromptSubmit",
+            "result": "no_match",
+            "session": "session-1",
+            "task": "task-3"
+          },
+          {
+            "operation": "get_memory",
+            "strategy": "research-literal-v1",
+            "result": "unavailable",
+            "session": "session-1",
+            "task": "task-3"
+          },
+          {
+            "operation": "submit_memory_feedback",
+            "strategy": "research-literal-v1",
+            "result": "unavailable",
+            "session": "session-1",
+            "task": "task-3"
+          },
+          {
+            "operation": "Stop",
+            "strategy": "research-literal-v1",
+            "result": "ended",
+            "session": "session-1",
+            "task": "task-3"
+          },
+          {
+            "operation": "recall",
+            "strategy": "research-literal-v1",
+            "trigger_event": "UserPromptSubmit",
+            "result": "delivered",
+            "reference": "ref-2",
+            "version": 1,
+            "session": "session-1",
+            "task": "task-4"
+          },
+          {
+            "operation": "source_access",
+            "strategy": "research-literal-v1",
+            "result": "revoked"
+          },
+          {
+            "operation": "get_memory",
+            "strategy": "research-literal-v1",
+            "result": "ok",
+            "reference": "ref-2",
+            "version": 1,
+            "session": "session-1",
+            "task": "task-4"
+          },
+          {
+            "operation": "memory_access",
+            "strategy": "research-literal-v1",
+            "result": "revoked"
+          },
+          {
+            "operation": "get_memory",
+            "strategy": "research-literal-v1",
+            "result": "unavailable",
+            "session": "session-1",
+            "task": "task-4"
+          },
+          {
+            "operation": "submit_memory_feedback",
+            "strategy": "research-literal-v1",
+            "result": "unavailable",
+            "session": "session-1",
+            "task": "task-4"
+          },
+          {
+            "operation": "Stop",
+            "strategy": "research-literal-v1",
+            "result": "ended",
+            "session": "session-1",
+            "task": "task-4"
+          },
+          {
+            "operation": "source_access",
+            "strategy": "research-literal-v1",
+            "result": "granted"
+          },
+          {
+            "operation": "memory_access",
+            "strategy": "research-literal-v1",
+            "result": "granted"
+          },
+          {
+            "operation": "recall",
+            "strategy": "research-literal-v1",
+            "trigger_event": "UserPromptSubmit",
+            "result": "delivered",
+            "reference": "ref-3",
+            "version": 1,
+            "session": "session-1",
+            "task": "task-5"
+          },
+          {
+            "operation": "get_memory",
+            "strategy": "research-literal-v1",
+            "result": "ok",
+            "reference": "ref-3",
+            "version": 1,
+            "session": "session-1",
+            "task": "task-5"
+          },
+          {
+            "operation": "submit_memory_feedback",
+            "strategy": "research-literal-v1",
+            "result": "accepted",
+            "reference": "ref-3",
+            "version": 1,
+            "session": "session-1",
+            "task": "task-5"
+          },
+          {
+            "operation": "submit_memory_feedback",
+            "strategy": "research-literal-v1",
+            "result": "accepted",
+            "reference": "ref-3",
+            "version": 1,
+            "session": "session-1",
+            "task": "task-5"
+          },
+          {
+            "operation": "Stop",
+            "strategy": "research-literal-v1",
+            "result": "ended",
+            "session": "session-1",
+            "task": "task-5"
+          },
+          {
+            "operation": "verify_feedback",
+            "strategy": "research-literal-v1",
+            "result": "applied",
+            "reference": "ref-3",
+            "version": 2,
+            "session": "session-1",
+            "task": "task-5"
+          },
+          {
+            "operation": "recall",
+            "strategy": "research-literal-v1",
+            "trigger_event": "UserPromptSubmit",
+            "result": "no_match",
+            "session": "session-2",
+            "task": "task-6"
+          },
+          {
+            "operation": "recall",
+            "strategy": "research-literal-v1",
+            "trigger_event": "PostToolBatch",
+            "result": "delivered",
+            "reference": "ref-5",
+            "version": 2,
+            "session": "session-2",
+            "task": "task-6"
+          },
+          {
+            "operation": "get_memory",
+            "strategy": "research-literal-v1",
+            "result": "ok",
+            "reference": "ref-5",
+            "version": 2,
+            "session": "session-2",
+            "task": "task-6"
+          },
+          {
+            "operation": "Stop",
+            "strategy": "research-literal-v1",
+            "result": "ended",
+            "session": "session-2",
+            "task": "task-6"
+          }
+        ],
+        "timeout-audit": [
+          {
+            "operation": "recall",
+            "strategy": "research-literal-v1",
+            "trigger_event": "UserPromptSubmit",
+            "result": "timeout",
+            "session": "session-1",
+            "task": "task-1"
+          },
+          {
+            "operation": "Stop",
+            "strategy": "research-literal-v1",
+            "result": "ended",
+            "session": "session-1",
+            "task": "task-1"
+          }
+        ]
+      }
+    }
+  }
+}
